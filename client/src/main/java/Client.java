@@ -4,6 +4,8 @@ public class Client {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
+        int requestsSent = 0;
+        int requestsProcessed = 0;
 
         while (!exit) {
             System.out.print("Enter a message (type 'exit' to quit): ");
@@ -12,8 +14,27 @@ public class Client {
             if (message.equalsIgnoreCase("exit")) {
                 exit = true;
             } else {
+                requestsSent++;
+                long startTime = System.currentTimeMillis();
+
                 String result = processMessage(message);
+                long endTime = System.currentTimeMillis();
+                long responseTime = endTime - startTime;
+
+                
                 System.out.println("Server response: " + result);
+                System.out.println("Response time client: " + responseTime + " ms");
+
+                if (!result.equals("Unprocessed")) {
+                    requestsProcessed++;
+                }
+
+                double unprocessRate = (double) (requestsSent - requestsProcessed) / requestsSent * 100;
+                System.out.println("Unprocess rate: " + unprocessRate + "%");
+                double scr = requestsProcessed / requestsSent;
+                System.out.println("Succes rate: "+scr+"%");
+                double missingRate  = requestsSent / requestsProcessed;
+                System.out.println("Mising rate: "+missingRate+"%");
             }
         }
     }

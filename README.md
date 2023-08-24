@@ -29,7 +29,10 @@ The server code (`Server.java`) initializes an ICE communicator, sets up an obje
 ## Note:
 This project is intended for educational purposes as part of the System Engineering course at ICESI University. Feel free to explore, modify, and learn from the code.
 
-If you have any questions or need further assistance, please contact the collaborators: Juan Pablo Acevedo and Jesus Garces.
+If you have any questions or need further assistance, please contact the collaborators: Juan Pablo Acevedo, Martin cifuentes and Jesus Garces.
+
+## Importand
+Change the client and server .config file
 
 **Languages Used:**
 - Java

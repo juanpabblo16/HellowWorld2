@@ -3,6 +3,7 @@ import java.io.*;
 
 public class Server
 {
+    private static int requestsReceived = 0;
     public static void main(String[] args)
     {
         java.util.List<String> extraArgs = new java.util.ArrayList<String>();
@@ -27,7 +28,7 @@ public class Server
     public static void f(String m)
     {
         String str = null, output = "";
-
+        long startTime = System.currentTimeMillis();
         InputStream s;
         BufferedReader r;
 
@@ -40,6 +41,18 @@ public class Server
             br.close(); 
         }
         catch(Exception ex) {
+        }
+
+        long endTime = System.currentTimeMillis();
+        long responseTime = endTime - startTime;
+
+        System.out.println("Response time server: " + responseTime + " ms");
+
+        if (responseTime > 1000) { // Adjust this threshold as needed
+            System.out.println("Unprocessed");
+        } else {
+            requestsReceived++;
+            System.out.println("Requests received: " + requestsReceived);
         }
     }
 
