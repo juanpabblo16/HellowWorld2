@@ -1,59 +1,55 @@
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Util;
+
 import java.io.*;
+import java.util.List;
+import java.util.concurrent.*;
 
-
-public class Server
-{
+public class Server {
     private static int requestsReceived = 0;
-    public static void main(String[] args)
-    {
-        java.util.List<String> extraArgs = new java.util.ArrayList<String>();
 
-        try(com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args,"config.server",extraArgs))
-        {
-            if(!extraArgs.isEmpty())
-            {
-                System.err.println("too many arguments");
-                for(String v:extraArgs){
+    public static void main(String[] args) {
+        List<String> extraArgs = new java.util.ArrayList<String>();
+
+        try (Communicator communicator = Util.initialize(args, "config.server", extraArgs)) {
+            if (!extraArgs.isEmpty()) {
+                System.err.println("Too many arguments");
+                for (String v : extraArgs) {
                     System.out.println(v);
                 }
             }
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Printer");
-            com.zeroc.Ice.Object object = new PrinterI();
-            adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("SimplePrinter"));
+
+            // Get the object adapter by name (must match the name in the config)
+            ObjectAdapter adapter = communicator.createObjectAdapter("Printer");
+
+            // Create a servant (object) and add it to the adapter
+            Object object = new PrinterI();
+            adapter.add((Object) object, Util.stringToIdentity("SimplePrinter"));
+
+            // Activate the adapter to start listening for incoming connections
             adapter.activate();
+
+            System.out.println("Server is running...");
+
             communicator.waitForShutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public static void f(String m)
-    {
-        String str = null, output = "";
-        long startTime = System.currentTimeMillis();
-        InputStream s;
-        BufferedReader r;
-
+    private static void handleClientRequest(com.zeroc.Ice.Communicator ic) {
         try {
-            Process p = Runtime.getRuntime().exec(m);
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream())); 
-            while ((str = br.readLine()) != null) 
-            output += str + System.getProperty("line.separator"); 
-            br.close(); 
-        }
-        catch(Exception ex) {
-        }
-
-        long endTime = System.currentTimeMillis();
-        long responseTime = endTime - startTime;
-
-        System.out.println("Response time server: " + responseTime + " ms");
-
-        if (responseTime > 1000) { // Adjust this threshold as needed
-            System.out.println("Unprocessed");
-        } else {
-            requestsReceived++;
-            System.out.println("Requests received: " + requestsReceived);
+            // Handle the client request here
+            Demo.PrinterPrx printer = Demo.PrinterPrx.checkedCast(ic.stringToProxy("SimplePrinter:tcp -p 9099"));
+            if (printer != null) {
+                String message = "Response from Server to Client " + Thread.currentThread().getId();
+                printer.printString(message);
+            }
+            ic.destroy();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
 }
