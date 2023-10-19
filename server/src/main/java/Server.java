@@ -1,54 +1,24 @@
-import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.Object;
-import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
-
 import java.io.*;
-import java.util.List;
-import java.util.concurrent.*;
 
 public class Server {
-    private static int requestsReceived = 0;
-
     public static void main(String[] args) {
-        List<String> extraArgs = new java.util.ArrayList<String>();
+        try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, "config.server")) {
+            // Create an object adapter to handle incoming requests.
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Service");
 
-        try (Communicator communicator = Util.initialize(args, "config.server", extraArgs)) {
-            if (!extraArgs.isEmpty()) {
-                System.err.println("Too many arguments");
-                for (String v : extraArgs) {
-                    System.out.println(v);
-                }
-            }
+            // Create an instance of ChatManagerImp to handle client interactions.
+            ChatManagerImp chatManagerImp = new ChatManagerImp();
 
-            // Get the object adapter by name (must match the name in the config)
-            ObjectAdapter adapter = communicator.createObjectAdapter("Printer");
+            // Add the ChatManagerImp object to the object adapter with a specific identity.
+            adapter.add(chatManagerImp, com.zeroc.Ice.Util.stringToIdentity("ChatManager"));
 
-            // Create a servant (object) and add it to the adapter
-            Object object = new PrinterI();
-            adapter.add((Object) object, Util.stringToIdentity("SimplePrinter"));
-
-            // Activate the adapter to start listening for incoming connections
+            // Activate the object adapter to start handling requests.
             adapter.activate();
 
-            System.out.println("Server is running...");
-
+            // Wait for the communicator to be shut down (e.g., by user action).
             communicator.waitForShutdown();
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void handleClientRequest(com.zeroc.Ice.Communicator ic) {
-        try {
-            // Handle the client request here
-            Demo.PrinterPrx printer = Demo.PrinterPrx.checkedCast(ic.stringToProxy("SimplePrinter:tcp -p 9099"));
-            if (printer != null) {
-                String message = "Response from Server to Client " + Thread.currentThread().getId();
-                printer.printString(message);
-            }
-            ic.destroy();
-        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
     }

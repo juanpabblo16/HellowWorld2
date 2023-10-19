@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Printer.Proxy=SimplePrinter:tcp -p 9099
+#Printer.Proxy=SimplePrinter:tcp -p 9099
 
 #
 # Uncomment to use the WebSocket transports instead.
@@ -12,4 +12,11 @@ Printer.Proxy=SimplePrinter:tcp -p 9099
 
 # Only listen on the ZeroTier's LIASOn1 interface by default.
 #
-Ice.Default.Host=10.147.19.76
+#Ice.Default.Host=localhost
+
+
+Callback.Endpoints = tcp -h 10.147.19.76 -p 10008
+
+ChatManager.Proxy = ChatManager: default -p 8000
+
+Ice.Default.Host = 10.147.19.76

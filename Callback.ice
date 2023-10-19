@@ -8,6 +8,11 @@ module Demo
         void printMsg(string s);
     };
 
+    interface Printer
+    {
+        void printString(string s);
+    };
+
     interface ChatManager
     {
 
